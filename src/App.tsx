@@ -1,22 +1,53 @@
 import * as React from 'react';
+import 'semantic-ui-css/semantic.min.css';
+import {Menu} from "semantic-ui-react";
 import './App.css';
+import {AuthUtils} from "./AuthUtils";
+import {Login} from "./Login";
+import {PrintText} from "./PrintText";
 
-import logo from './logo.svg';
+interface AppState {
+    mode: "printText" | "printImage";
+    loggedIn: boolean;
+}
 
-class App extends React.Component {
-  public render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.tsx</code> and save to reload.
-        </p>
-      </div>
-    );
-  }
+class App extends React.Component<{}, AppState> {
+    constructor(props: {}, context: any) {
+        super(props, context);
+        this.state = {mode: "printText", loggedIn: AuthUtils.getAPIKey() != null};
+    }
+
+    public render() {
+        const {mode, loggedIn} = this.state;
+        if (loggedIn) {
+            return (
+                <div>
+                    <Menu>
+                        <Menu.Item content="Text"
+                                   active={mode == "printText"}
+                                   onClick={() => this.setState({mode: "printText"})}/>
+                        <Menu.Item content="Image"
+                                   active={mode == "printImage"}
+                                   onClick={() => this.setState({mode: "printImage"})}/>
+                        <Menu.Menu position='right'>
+                            <Menu.Item content="Sign Out"
+                                       onClick={() => {
+                                           AuthUtils.clearAPIKey();
+                                           this.setState({loggedIn: false});
+                                       }}/>
+                        </Menu.Menu>
+                    </Menu>
+                    <div className="menu-content">
+                        {mode == "printText" ? <PrintText /> : null}
+                    </div>
+                </div>
+            );
+        } else {
+            return (
+                <Login onLogin={() => this.setState({loggedIn: true})}/>
+            );
+        }
+    }
 }
 
 export default App;
