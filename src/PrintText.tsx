@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Form} from "semantic-ui-react";
+import {Form, Message} from "semantic-ui-react";
 import {API} from "./utils/Api";
 
 interface PrintTextState {
@@ -48,6 +48,9 @@ export class PrintText extends React.Component<{}, PrintTextState> {
                             onClick: () => this.send(),
                         }}/>
                 </Form>
+                {status.key == "error" ? (
+                    <Message negative content={status.message}/>
+                ) : null}
             </div>
         );
     }

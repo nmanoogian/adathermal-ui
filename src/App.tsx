@@ -4,6 +4,7 @@ import {Menu} from "semantic-ui-react";
 import './App.css';
 import {AuthUtils} from "./AuthUtils";
 import {Login} from "./Login";
+import {PrintImage} from "./PrintImage";
 import {PrintText} from "./PrintText";
 
 interface AppState {
@@ -39,6 +40,7 @@ class App extends React.Component<{}, AppState> {
                     </Menu>
                     <div className="menu-content">
                         {mode == "printText" ? <PrintText /> : null}
+                        {mode == "printImage" ? <PrintImage /> : null}
                     </div>
                 </div>
             );
