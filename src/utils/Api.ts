@@ -46,4 +46,10 @@ export class API {
             .then(r => callback(API.resultFromResponse(r, Nothing.ioType)))
             .catch(e => callback(API.resultFromError(e)));
     }
+
+    static printImageURL(imageUrl: string, callback: (result: ApiResult<Nothing>) => void) {
+        axios.default.post(`${this.apiRoot}/print-image-url`, {url: imageUrl}, {headers: API.headers()})
+            .then(r => callback(API.resultFromResponse(r, Nothing.ioType)))
+            .catch(e => callback(API.resultFromError(e)));
+    }
 }

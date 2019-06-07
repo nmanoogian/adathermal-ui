@@ -5,10 +5,11 @@ import './App.css';
 import {AuthUtils} from "./AuthUtils";
 import {Login} from "./Login";
 import {PrintImage} from "./PrintImage";
+import {PrintImageURL} from "./PrintImageUrl";
 import {PrintText} from "./PrintText";
 
 interface AppState {
-    mode: "printText" | "printImage";
+    mode: "printText" | "printImage" | "printImageURL";
     loggedIn: boolean;
 }
 
@@ -30,6 +31,9 @@ class App extends React.Component<{}, AppState> {
                         <Menu.Item content="Image"
                                    active={mode == "printImage"}
                                    onClick={() => this.setState({mode: "printImage"})}/>
+                        <Menu.Item content="Image URL"
+                                   active={mode == "printImageURL"}
+                                   onClick={() => this.setState({mode: "printImageURL"})}/>
                         <Menu.Menu position='right'>
                             <Menu.Item content="Sign Out"
                                        onClick={() => {
@@ -41,6 +45,7 @@ class App extends React.Component<{}, AppState> {
                     <div className="menu-content">
                         {mode == "printText" ? <PrintText /> : null}
                         {mode == "printImage" ? <PrintImage /> : null}
+                        {mode == "printImageURL" ? <PrintImageURL /> : null}
                     </div>
                 </div>
             );
