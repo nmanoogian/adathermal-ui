@@ -7,7 +7,7 @@ interface PrintImageState {
 }
 
 export class PrintImage extends React.Component<{}, PrintImageState> {
-    private static readonly MAX_WIDTH = 1000;
+    private static readonly SHORT_SIDE = 500;
     constructor(props: {}, context: any) {
         super(props, context);
         this.state = {status: {key: "ready"}};
@@ -63,21 +63,28 @@ export class PrintImage extends React.Component<{}, PrintImageState> {
                                        const image = new Image();
                                        image.src = dataUrl;
                                        image.onload = () => {
-                                         if (image.width <= PrintImage.MAX_WIDTH)   {
-                                             this.loadBlob(dataUrl);
-                                             return;
-                                         }
-                                         const width = PrintImage.MAX_WIDTH;
-                                         const height = image.height * (PrintImage.MAX_WIDTH / image.width);
-                                         const canvas = document.createElement('canvas');
-                                         canvas.width = width;
-                                         canvas.height = height;
-                                         const context = canvas.getContext("2d");
-                                         if (context == null) {
-                                              return;
-                                         }
-                                         context.drawImage(image, 0, 0, canvas.width, canvas.height);
-                                         this.loadBlob(canvas.toDataURL(file.type));
+                                           if (image.width <= PrintImage.SHORT_SIDE && image.height <= PrintImage.SHORT_SIDE) {
+                                               this.loadBlob(dataUrl);
+                                               return;
+                                           }
+                                           let height;
+                                           let width;
+                                           if (image.width > image.height) {
+                                               width = image.width * (PrintImage.SHORT_SIDE / image.height);
+                                               height = PrintImage.SHORT_SIDE;
+                                           } else {
+                                               width = PrintImage.SHORT_SIDE;
+                                               height = image.height * (PrintImage.SHORT_SIDE / image.width);
+                                           }
+                                           const canvas = document.createElement('canvas');
+                                           canvas.width = width;
+                                           canvas.height = height;
+                                           const context = canvas.getContext("2d");
+                                           if (context == null) {
+                                               return;
+                                           }
+                                           context.drawImage(image, 0, 0, canvas.width, canvas.height);
+                                           this.loadBlob(canvas.toDataURL(file.type));
                                        };
                                    };
                                    reader.onerror = () => this.setState({status: {key: "error", message: "Failed to read file."}});
