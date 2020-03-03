@@ -8,20 +8,43 @@ import {PrintImage} from "./PrintImage";
 import {PrintImageURL} from "./PrintImageUrl";
 import {PrintText} from "./PrintText";
 
+interface AppParams {
+    apiKey: string | null;
+}
+
 interface AppState {
     mode: "printText" | "printImage" | "printImageURL";
     loggedIn: boolean;
+    paramKey: string | null;
 }
 
 class App extends React.Component<{}, AppState> {
     constructor(props: {}, context: any) {
         super(props, context);
-        this.state = {mode: "printText", loggedIn: AuthUtils.getAPIKey() != null};
+        this.state = {
+            mode: "printText",
+            loggedIn: AuthUtils.getAPIKey() != null,
+            paramKey: App.getParams().apiKey,
+        };
+    }
+
+    componentDidMount(): void {
+        if (App.getParams().apiKey != null) {
+            window.history.replaceState(null, "", "/");
+        }
+    }
+
+    private static getParams(): AppParams {
+        const params = new URL(window.location.href).searchParams;
+        return {
+            apiKey: params.get("k"),
+        };
     }
 
     public render() {
-        const {mode, loggedIn} = this.state;
-        if (loggedIn) {
+        const {mode, loggedIn, paramKey} = this.state;
+
+        if (loggedIn && paramKey == null) {
             return (
                 <div>
                     <Menu>
@@ -43,15 +66,17 @@ class App extends React.Component<{}, AppState> {
                         </Menu.Menu>
                     </Menu>
                     <div className="menu-content">
-                        {mode == "printText" ? <PrintText /> : null}
-                        {mode == "printImage" ? <PrintImage /> : null}
-                        {mode == "printImageURL" ? <PrintImageURL /> : null}
+                        {mode == "printText" ? <PrintText/> : null}
+                        {mode == "printImage" ? <PrintImage/> : null}
+                        {mode == "printImageURL" ? <PrintImageURL/> : null}
                     </div>
                 </div>
             );
         } else {
             return (
-                <Login onLogin={() => this.setState({loggedIn: true})}/>
+                <Login
+                    paramKey={paramKey}
+                    onLogin={() => this.setState({loggedIn: true, paramKey: null})}/>
             );
         }
     }

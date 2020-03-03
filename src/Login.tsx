@@ -4,6 +4,7 @@ import {AuthUtils} from "./AuthUtils";
 import {API} from "./utils/Api";
 
 interface LoginProps {
+    paramKey: string | null;
     onLogin(): void;
 }
 
@@ -16,6 +17,28 @@ export class Login extends React.Component<LoginProps, LoginState> {
     constructor(props: LoginProps, context: any) {
         super(props, context);
         this.state = {apiKey: null, status: {key: "ready"}};
+    }
+
+    componentDidMount(): void {
+        if (this.props.paramKey != null) {
+            this.setState({apiKey: this.props.paramKey}, () => this.onSubmit());
+        }
+    }
+
+    private onSubmit() {
+        const {apiKey} = this.state;
+        if (apiKey == null) {
+            return;
+        }
+        this.setState({status: {key: "loading"}});
+        API.checkAuth(apiKey, result => {
+            if (result.success) {
+                AuthUtils.setAPIKey(apiKey);
+                this.props.onLogin();
+            } else {
+                this.setState({status: {key: "error", message: result.message}});
+            }
+        });
     }
 
     public render() {
@@ -32,20 +55,7 @@ export class Login extends React.Component<LoginProps, LoginState> {
                             content="Go"
                             disabled={apiKey == null}
                             loading={status.key == "loading"}
-                            onClick={() => {
-                                if (apiKey == null) {
-                                    return;
-                                }
-                                this.setState({status: {key: "loading"}});
-                                API.checkAuth(apiKey, result => {
-                                    if (result.success == true) {
-                                        AuthUtils.setAPIKey(apiKey);
-                                        this.props.onLogin();
-                                    } else {
-                                        this.setState({status: {key: "error", message: result.message}});
-                                    }
-                                });
-                            }}
+                            onClick={() => this.onSubmit()}
                         />
                         {status.key == "error" ? (
                             <Message negative content={status.message}/>
